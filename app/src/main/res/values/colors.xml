@@ -2,8 +2,12 @@
 <resources>
     <color name="frio">#03A9F4</color>
     <color name="calor">#FFC107</color>
-    <color name="predeterminado">#4CAF50</color>
+    <color name="normal">#009688</color>
+    <color name="desigual">#000000</color>
 
-    <color name="azul">#00BCD4</color>
+    <color name="azul">#1ADBE8</color>
     <color name="rojo">#EB0A0A</color>
+    <color name="verde">#58E65E</color>
+
+    <color name="predeterminado">#0B0B0B</color>
 </resources>

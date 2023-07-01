@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TemperaturaAmbiental3</string>
+    <string name="temperatura">temperatura</string>
+    <string name="valoresBajos">"¡Cuidado! Temperatura y frecuencia cardíaca bajas."</string>
+    <string name="valoresAltos">"¡Cuidado! Temperatura y frecuencia cardíaca altas."</string>
+    <string name="valoresNormales">"¡Cuidado! Temperatura y frecuencia cardíaca normales."</string>
+    <string name="valoresDesiguales">Valores desiguales</string>
+    <string name="corazon">icono de corazon</string>
 </resources>
