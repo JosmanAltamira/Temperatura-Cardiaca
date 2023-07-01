@@ -1,30 +1,58 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#D5A517"
+    android:background="#040404"
     tools:context=".MainActivity">
 
+    <!-- linear layout temperatura y corazon -->
     <LinearLayout
+        android:id="@+id/llTemperaturaCorazon"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_centerInParent="true">
+        android:layout_marginTop="45dp">
 
+        <!-- Contenido del LinearLayout de temperatura -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="center"
-                android:src="@drawable/temperatura"
-                android:id="@+id/iconoTemperatura" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ProgressBar
+                    android:id="@+id/temperaturaProgressBar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="15dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="5.5dp"
+                    android:layout_marginStart="26dp"
+                    android:layout_marginBottom="5.5dp"
+                    android:max="100"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:progressDrawable="@drawable/ic_degradado_progress_bar"
+                    app:layout_constraintStart_toStartOf="@+id/termometroIcono"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/termometroIcono"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:contentDescription="@string/temperatura"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_termometro" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/txtValorTemperatura"
@@ -41,17 +69,20 @@
             android:layout_height="match_parent"
             android:background="#FFFFFF" />
 
+        <!-- Contenido del LinearLayout de corazón -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            tools:ignore="UseCompoundDrawables">
 
             <ImageView
                 android:layout_width="70dp"
                 android:layout_height="70dp"
                 android:layout_gravity="center"
-                android:src="@drawable/corazon"
+                android:src="@drawable/ic_corazon"
+                android:contentDescription="@string/corazon"
                 android:id="@+id/iconoCorazon" />
 
             <TextView
@@ -63,7 +94,38 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
         </LinearLayout>
+    </LinearLayout>
 
+
+    <!-- linear layout alerta -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:layout_marginTop="1dp"
+        android:layout_below="@id/llTemperaturaCorazon">
+
+
+        <!-- Contenido del LinearLayout de alerta -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            tools:ignore="UselessParent">
+
+            <TextView
+                android:id="@+id/txtAlerta"
+                android:layout_width="110dp"
+                android:textAlignment="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/valoresNormales"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textSize="11sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

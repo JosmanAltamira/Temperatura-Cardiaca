@@ -7,9 +7,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -18,18 +21,21 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorManager;
-    private Sensor temperatureSensor;
-    private Sensor heartRateSensor;
+    private Sensor sensorTemperatura;
+    private Sensor sensorCorazon;
     private TextView txtValorTemperatura;
     private TextView txtValorCorazon;
+    private TextView txtAlerta;
+    private ProgressBar temperaturaProgressBar;
 
-    // Valores Minimos
-    private static final int FRIO_MINIMO = 25;
-    private static final int FRECUENCIA_MIN = 60;
+    //icono y animacion
+    private ImageView iconoCorazon;
+    private Animation corazonAnimacion;
+    private boolean AnimacionCorriendo = false;
 
-    // Valores Maximos
-    public static final int CALOR_MAXIMO = 40;
-    public static final int FRECUENCIA_MAX = 100;
+    private static final int CORAZON_LATIDO_DURACION_MIN = 800;  // Duración mínima de la animación
+    //private static final int CORAZON_LATIDO_DURACION_MAX = 100;  // Duración máxima de la animación
+    private static final int MAX_CORAZON = 500;// Valor máximo de la frecuencia cardíaca
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +44,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         txtValorTemperatura = findViewById(R.id.txtValorTemperatura);
         txtValorCorazon = findViewById(R.id.txtValorCorazon);
+        txtAlerta = findViewById(R.id.txtAlerta);
+
+        iconoCorazon = findViewById(R.id.iconoCorazon);
+        corazonAnimacion = AnimationUtils.loadAnimation(this, R.anim.corazon_latido);
+        temperaturaProgressBar = findViewById(R.id.temperaturaProgressBar);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        temperatureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-        heartRateSensor = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+        sensorTemperatura = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        sensorCorazon = sensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
     }
 
     @Override
@@ -53,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     Manifest.permission.BODY_SENSORS}, 1);
         } else {
             startSensors();
+            startHeartAnimation();
         }
     }
 
@@ -63,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void startSensors() {
-        sensorManager.registerListener(this, temperatureSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(this, heartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorTemperatura, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensorCorazon, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void stopSensors() {
@@ -77,64 +89,116 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
             float valorTemperatura = event.values[0];
             txtValorTemperatura.setText(String.valueOf(valorTemperatura));
-            Comparacion(valorTemperatura, 0);
+
+            String valorCorazonStr = txtValorCorazon.getText().toString();
+            if (!valorCorazonStr.isEmpty()) {
+                float valorCorazon = Float.parseFloat(valorCorazonStr);
+                Comparacion(valorTemperatura, valorCorazon);
+            }
         } else if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
             float valorCorazon = event.values[0];
             txtValorCorazon.setText(String.valueOf(valorCorazon));
-            float valorTemperatura = Float.parseFloat(txtValorTemperatura.getText().toString());
-            Comparacion(valorTemperatura, valorCorazon);
+
+            String valorTemperaturaStr = txtValorTemperatura.getText().toString();
+            if (!valorTemperaturaStr.isEmpty()) {
+                float valorTemperatura = Float.parseFloat(valorTemperaturaStr);
+                Comparacion(valorTemperatura, valorCorazon);
+            }
         }
 
-        if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
-            float valor = event.values[0];
-            txtValorCorazon.setText(String.valueOf(valor));
-            ImageView iconoCorazon = findViewById(R.id.iconoCorazon);
-            if (valor <= FRECUENCIA_MIN) {
-                iconoCorazon.setColorFilter(ContextCompat.getColor(this, R.color.azul));
-                //iconoCorazon.setColorFilter(ContextCompat.getColor(this,R.color.rojo));
-            } else if (valor >= FRECUENCIA_MAX) {
-                iconoCorazon.setColorFilter(ContextCompat.getColor(this, R.color.rojo));
-            } else {
-                iconoCorazon.clearColorFilter();
+            if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
+                float valorCorazon = event.values[0];
+                txtValorCorazon.setText(String.valueOf(valorCorazon));
+                if (valorCorazon <= 0) {
+                    stopHeartAnimation();
+                } else {
+                    float heartRatePercentage = (valorCorazon / MAX_CORAZON);
+                    float speedMultiplier = 1 + (heartRatePercentage * 3);  // Ajusta el multiplicador de velocidad según tu preferencia
+                    int heartBeatDuration = (int) (CORAZON_LATIDO_DURACION_MIN / speedMultiplier);
+                    setHeartAnimationDuration(heartBeatDuration);
+                    startHeartAnimation();
+                }
             }
+    }
+
+    private void startHeartAnimation() {
+        if (!AnimacionCorriendo && corazonAnimacion != null) {
+            // Valores de animacion
+            corazonAnimacion.setDuration(CORAZON_LATIDO_DURACION_MIN);
+            iconoCorazon.startAnimation(corazonAnimacion);
+            AnimacionCorriendo = true;
+        }
+    }
+
+    private void setHeartAnimationDuration(int duration) {
+        Animation corazonAnimacion = AnimationUtils.loadAnimation(this, R.anim.corazon_latido);
+        corazonAnimacion.setDuration(duration);
+        ImageView iconoCorazon = findViewById(R.id.iconoCorazon);
+        iconoCorazon.startAnimation(corazonAnimacion);
+    }
+
+    private void stopHeartAnimation() {
+        if (AnimacionCorriendo) {
+            iconoCorazon.clearAnimation();
+            AnimacionCorriendo = false;
         }
     }
 
     private void Comparacion(float valorTemperatura, float valorCorazon) {
-        // Cambiar color del icono de temperatura
-        ImageView iconoTemperatura = findViewById(R.id.iconoTemperatura);
-        if (valorTemperatura <= FRIO_MINIMO) {
-            iconoTemperatura.setColorFilter(ContextCompat.getColor(this, R.color.azul));
-        } else if (valorTemperatura >= CALOR_MAXIMO) {
-            iconoTemperatura.setColorFilter(ContextCompat.getColor(this, R.color.rojo));
-        } else {
-            iconoTemperatura.clearColorFilter();
+        // Cambiar color del icono de corazón
+        ImageView iconoCorazon = findViewById(R.id.iconoCorazon);
+        if (valorCorazon <= 60) {
+            iconoCorazon.setColorFilter(ContextCompat.getColor(this,R.color.azul));
+        } else if (valorCorazon >= 100) {
+            iconoCorazon.setColorFilter(ContextCompat.getColor(this, R.color.rojo));
+        } else if (valorCorazon >= 61 && valorCorazon <= 99) {
+            iconoCorazon.setColorFilter(ContextCompat.getColor(this, R.color.verde));
+        }else {
+            iconoCorazon.clearColorFilter();
         }
 
-        // Cambiar color del icono de corazón
-       /* ImageView iconoCorazon = findViewById(R.id.iconoCorazon);
-        if (valorCorazon <= FRECUENCIA_MIN) {
-            iconoCorazon.setColorFilter(ContextCompat.getColor(this,R.color.azul));
-            //iconoCorazon.setColorFilter(ContextCompat.getColor(this,R.color.rojo));
-        } else if (valorCorazon >= FRECUENCIA_MAX) {
-            iconoCorazon.setColorFilter(ContextCompat.getColor(this, R.color.rojo));
-        } else {
-            iconoCorazon.clearColorFilter();
-        }*/
+        // bara de progreso de temperatura
+        int progreso = (int) ((valorTemperatura - (-273.1)) / (100 - (-273.1)) * 100);
+        temperaturaProgressBar.setProgress(progreso);
 
-        if (valorTemperatura <= FRIO_MINIMO && valorCorazon <= FRECUENCIA_MIN && valorTemperatura > 0 && valorCorazon> 0) {
-            showTemperatureAlert("¡Cuidate! 🥶 Muevete a un lugar cálido.");
-        } else if (valorTemperatura >= CALOR_MAXIMO && valorCorazon >= FRECUENCIA_MAX && valorTemperatura > 0 && valorCorazon > 0) {
-            showTemperatureAlert("¡Cuidate! ☀️ Muevete a un lugar fresco.");
+        // Cambiar color de fondo
+        RelativeLayout mainLayout = findViewById(R.id.mainLayout);
+        boolean condicionesCumplidas = false;
+
+        if (valorTemperatura <= 25 && valorCorazon <= 60 ) {
+            mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.frio));
+            txtAlerta.setText(getString(R.string.valoresBajos));
+            condicionesCumplidas = true;
+        }
+
+        if (valorTemperatura >= 40 && valorCorazon >= 100) {
+            mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.calor));
+            txtAlerta.setText(getString(R.string.valoresAltos));
+            condicionesCumplidas = true;
+        }
+
+        if (valorTemperatura > 25 && valorTemperatura < 40 && valorCorazon > 60 && valorCorazon < 100) {
+            mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.normal));
+            txtAlerta.setText(getString(R.string.valoresNormales));
+            condicionesCumplidas = true;
+        }
+
+        //si no hay valores
+        if (valorTemperatura == 0 && valorCorazon == 0) {
+            txtAlerta.setText("");
+            iconoCorazon.clearColorFilter();
+        }
+
+        //si no se cumplen las condiciones
+        if (!condicionesCumplidas) {
+            mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.desigual));
+            txtAlerta.setText(getString(R.string.valoresDesiguales));
         }
     }
 
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-    private void showTemperatureAlert(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 }
 
