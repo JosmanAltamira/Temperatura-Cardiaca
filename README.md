@@ -16,7 +16,7 @@ wear os que detecta la temperatura ambiente y la frecuencia cardiaca, compara co
 
 ## Imagenes
 <p align="center">
-  <img width="30%" src="https://github.com/JosmanAltamira/imagenes/blob/main/Temperatura-Cardiaca/pag1.png">
-  <img width="30%" src="https://github.com/JosmanAltamira/imagenes/blob/main/Temperatura-Cardiaca/pag2.png">
-  <img width="30%" src="https://github.com/JosmanAltamira/imagenes/blob/main/Temperatura-Cardiaca/pag3.png">
+  <img width="30%" src="https://gitlab.com/imagenes1/imgrepo/-/raw/main/Temperatura-Cardiaca/pag1.png">
+  <img width="30%" src="https://gitlab.com/imagenes1/imgrepo/-/raw/main/Temperatura-Cardiaca/pag2.png">
+  <img width="30%" src="https://gitlab.com/imagenes1/imgrepo/-/raw/main/Temperatura-Cardiaca/pag3.png">
 </p>
