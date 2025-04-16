@@ -1,12 +1,12 @@
 # Temperatura-Cardiaca
-wear os que detecta la temperatura ambiente y la frecuencia cardiaca, compara con los valores minimos y maximos y muestra el mensaje
+wear os que detecta la temperatura ambiente y la frecuencia cardiaca, comparada con los valores minimos y maximos
 
  ## Valores del mensaje
 | valores | Temperatura | Frecuencia |
 | --- | --- | --- |
-| Maxima | 40°,100° | 100,500 |
-| Minima | 25°,-273.1° | 60,1 |
-| Normal | 26°,39° | 61,99 |
+| Maxima | 40° a 100° | 100 a 500 |
+| Minima | 25° a -273.1° | 60 a 1 |
+| Normal | 26° a 39° | 61 a 99 |
 
  ## Version
 | Nombre | Versión |
